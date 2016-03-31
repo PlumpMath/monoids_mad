@@ -1,15 +1,16 @@
 module MonoidHomomorphisms  where
 
 import Text.Printf
+import Criterion.Main
+import Data.Monoid
+import Data.Foldable
 
 
-add :: String -> String -> String
-add = (++)
-
-
-wordCount :: String -> Int
+-- MONOID HOMOMORPHISM
+-- Monoid [a] -> Monoid Sum Int
+wordCount :: String -> Sum Int
 wordCount t =
-  length $ words t
+  Sum $ length $ words t
 
 
 page :: String -> Int -> String
@@ -17,6 +18,27 @@ page word numberOfTimes =
   unwords $ replicate numberOfTimes word
 
 
-main :: IO()
-main = 
-  printf "The word count is %6i" $ wordCount $ page "Hello" 1000
+pageHello :: Int -> String
+pageHello = page "Hello"
+
+
+document :: [String]
+document = replicate 100 $ pageHello 1000
+
+
+mapThenAddCounts :: [String] -> Int
+mapThenAddCounts = getSum . foldMap wordCount
+
+
+joinThenCount :: [String] -> Int
+joinThenCount = getSum . wordCount . mconcat
+
+
+main :: IO ()
+main = do
+  printf "The word count is %6i\n" $ getSum $ wordCount $ page "Hello" 1000
+  defaultMain [
+    bgroup "wordcount" [ bench "map then count" $ whnf mapThenAddCounts document
+                       , bench "join then count" $ whnf joinThenCount document
+                       ]
+              ]
