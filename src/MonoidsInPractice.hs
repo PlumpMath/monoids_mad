@@ -14,6 +14,19 @@ instance Show OrderLine where
   show (TotalLine tlQuantity tlTotal) =
     printf "%-10s %5i            %6g" "TOTAL" tlQuantity tlTotal
 
+{-|
+class Monoid m where
+  mempty :: m
+  mappend :: m -> m -> m
+  mconcat :: [m] -> m
+  mconcat = foldr mappend mempty
+-}
+
+
+instance Monoid OrderLine where
+  mempty = EmptyLine
+  mappend = addLine
+
 
 sampleLines :: [OrderLine]
 sampleLines =
@@ -56,10 +69,6 @@ addLine line1 line2 =
   }
 
 
-totalLine :: [OrderLine] -> OrderLine
-totalLine = foldl addLine EmptyLine
-
-
 main = do
   mapM_ print sampleLines
   putStrLn "----------------------------------"
@@ -69,6 +78,6 @@ main = do
   putStrLn "----------------------------------"
   print bigTotal
   where
-    subtotal = totalLine sampleLines
-    bigTotal = totalLine $ moreSampleLines ++ [subtotal]
+    subtotal = mconcat sampleLines
+    bigTotal = mconcat $ moreSampleLines ++ [subtotal]
 
