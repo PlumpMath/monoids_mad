@@ -32,6 +32,33 @@ moreSampleLines =
   ]
 
 
+addLine :: OrderLine -> OrderLine -> OrderLine
+addLine line1 line2 =
+  OrderLine {
+    productCode = "TOTAL",
+    quantity = quantity line1 + quantity line2,
+    total = total line1 + total line2
+  }
+
+
+emptyLine :: OrderLine
+emptyLine =
+  OrderLine {
+    productCode = "",
+    quantity = 0,
+    total = 0
+  }
+
+
+totalLine :: OrderLine
+totalLine = foldl addLine emptyLine sampleLines
+
+
 main = do
   mapM_ print sampleLines
+  putStrLn "-----------------------"
+  print totalLine
+  putStrLn "-----------------------"
   mapM_ print moreSampleLines
+  putStrLn "-----------------------"
+  print totalLine
